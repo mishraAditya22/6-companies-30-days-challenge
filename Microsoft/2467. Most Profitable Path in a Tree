@@ -1,0 +1,59 @@
+
+question link -- https://leetcode.com/problems/most-profitable-path-in-a-tree/description/
+
+//solution 
+
+class Solution {
+public:
+    bool dfs(int src,int time,vector<bool>& vist,unordered_map<int,int>& path,unordered_map<int,vector<int>>& adj){
+        vist[src] = true;
+        path[src] = time;
+        if(src==0)
+            return true;
+        for(auto &it : adj[src]){
+            if(!vist[it]){
+                if(dfs(it,time+1,vist,path,adj))
+                    return true;
+            }
+        }
+        path.erase(src);
+        return false;
+    }
+    int mostProfitablePath(vector<vector<int>>& edges, int bob, vector<int>& amount) {
+        unordered_map<int,vector<int>> adj;
+        for(auto &it : edges){
+            adj[it[0]].push_back(it[1]);
+            adj[it[1]].push_back(it[0]);
+        }
+        int n = edges.size();
+        vector<bool> vist(n+1,false);
+        unordered_map<int,int> path;
+        dfs(bob,0,vist,path,adj);
+        queue<vector<int>> q;
+        vector<bool> visted(n+1,false);
+        q.push({0,0,0});
+        int ans = INT_MIN;
+        while(!q.empty()){
+            int src = q.front()[0];
+            int time = q.front()[1];
+            int income = q.front()[2];
+            q.pop();
+            visted[src] = true;
+            if(path.find(src)==path.end())
+                income+=amount[src];
+            else{
+                if(time<path[src])
+                    income+=amount[src];
+                else if(time==path[src])
+                    income+=(amount[src]/2);
+            }
+            if(adj[src].size()==1 && src!=0)
+                ans = max(ans,income);
+            for(auto &it : adj[src]){
+                if(!visted[it])
+                    q.push({it,time+1,income});
+            }
+        }
+        return ans;
+    }
+};
