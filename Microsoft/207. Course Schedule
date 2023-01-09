@@ -1,0 +1,44 @@
+//question link = https://leetcode.com/problems/course-schedule/
+
+//solution 
+//return true , if cycle does not exists else return false
+//used khan's algo for finding cycle in the directed graph
+
+
+class Solution {
+public:
+    bool detectCycle(vector<int> adj[],int n){
+        vector<int> inDegree(n,0);
+        for(int i=0;i<n;i++){
+            for(auto it : adj[i]){
+                inDegree[it]++;
+            }
+        }
+        queue<int> q;
+        for(int j=0;j<n;j++){
+            if(inDegree[j]==0)
+                q.push(j);
+        }
+        int count=0;
+        while(!q.empty()){
+            int curr = q.front();
+            q.pop();
+            count++;
+            for(auto ut : adj[curr]){
+                inDegree[ut]--;
+                if(inDegree[ut]==0)
+                    q.push(ut);
+            }
+        }
+        if(count==n)
+            return true;
+        return false;
+    }
+    bool canFinish(int n, vector<vector<int>>& pre) {
+        vector<int> adj[n];
+        for(auto it : pre){
+            adj[it[1]].push_back(it[0]);
+        }
+        return detectCycle(adj,n);
+    }
+};
